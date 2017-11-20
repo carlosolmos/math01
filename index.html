@@ -1,0 +1,65 @@
+<!--
+Designed and coded with love by Carlos Olmos in SJ California.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Math 01</title>
+    <script src="lib/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    //global setup.
+    var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+    var platforms;
+    var ops;
+    var powerups;
+
+    function preload() {
+        game.load.image('sky', 'assets/sky.png');
+        game.load.image('ground', 'assets/platform.png');
+        game.load.image('op', 'assets/diamond.png');
+    }
+
+    function create() {
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        //background
+        game.add.sprite(0, 0, 'sky');
+
+        //platforms
+        platforms = game.add.group();
+        platforms.enableBody = true;
+
+        // Ground
+        var ground = platforms.create(0, game.world.height - 64, 'ground');
+        //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+        ground.scale.setTo(2, 2);
+        //  This stops it from falling away when you jump on it
+        ground.body.immovable = true;
+
+
+        ops = game.add.group();
+        ops.enableBody = true;
+        ops.physicsBodyType = Phaser.Physics.ARCADE;
+        ops.createMultiple(30, 'op');
+        ops.setAll('anchor.x', 0.5);
+        ops.setAll('anchor.y', 1);
+        ops.setAll('outOfBoundsKill', true);
+        ops.setAll('checkWorldBounds', true);
+
+    }
+
+    function update() {
+
+    }
+
+</script>
