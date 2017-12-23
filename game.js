@@ -2,7 +2,7 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 var gameState = 0;
-
+var gameTimer;
 var platforms;
 var enemies;
 var results;
@@ -27,11 +27,17 @@ var operationText = "";
 var opresult = 0;
 var resultOptions = [];
 var opInPlay = false;
+const timeToMath = 5000;
 
 var scoreValue = 0;
 
-function operation(level, types){
-    const operatorInx = game.rnd.integerInRange(0, types.length);
+function operation(level){
+    if(level < 10){
+        mathOps = ["+"];
+    }else{
+        mathOps = ["+","-"];
+    }
+    const operatorInx = game.rnd.integerInRange(0, mathOps.length-1);
 	const operator = mathOps[operatorInx];
 	var operand1 = game.rnd.integerInRange(1, operandLimits[level]);
 	var operand2 = game.rnd.integerInRange(1, operandLimits[level]);
@@ -106,7 +112,7 @@ function preload() {
 
 function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    
+    gameTimer = game.time.create(false);
      //  The platforms group contains the ground
     platforms = game.add.group();
     //  We will enable physics for any object that is created in this group
@@ -152,7 +158,7 @@ function create() {
     
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
     scoreText = game.add.bitmapText(10, 10, 'carrier_command','Score: ' + scoreValue,14);
-    levelText = game.add.bitmapText(game.world.width - 164, 10, 'carrier_command','Level: ' + difficulty,14);
+    levelText = game.add.bitmapText(game.world.width - 200, 10, 'carrier_command','Level: ' + difficulty,14);
     
     startBtn = game.add.button(game.world.centerX, game.world.centerY, 'startButton', null, this, 0, 0, 0, 0);
     startBtn.events.onInputUp.add(startGame);
@@ -195,13 +201,12 @@ function update() {
         //set operation in play
         if(!opInPlay){
             opInPlay = true;
-            operationText = operation(difficulty, mathOps);
+            operationText = operation(difficulty);
+            
             opresult = eval(operationText);
             resultOptions = fakesResults(opresult, difficulty);
             resultOptions.push(opresult);
-            //console.log(operationText);
-            //console.log(opresult);
-            //console.log(resultOptions);
+
             opText.text = operationText;
             setMathOps(resultOptions);
         }
@@ -249,10 +254,15 @@ function setMathOps(resultOptions){
     
     for (var i = 0; i < resultOptions.length; i++)
     {
-        var t = game.add.bitmapText((i*spread)+8, 120, 'carrier_command',resultOptions[i],14, results);
+        var t = game.add.bitmapText((i*spread)+32, 120, 'carrier_command',resultOptions[i],28, results);
         
         t.name = resultOptions[i];
     }
+}
+
+function resetMath(){
+    console.log("Reset Math");
+    opInPlay = false;
 }
 
 //  Called if the bullet hits one of the result sprites
@@ -262,9 +272,13 @@ function collisionHandler (bullet, resultado) {
     resultado.kill();
     if(resultado.name == opresult){
         scoreValue += 100;
-        console.log("YEAH!");
+        difficulty++;
+        opText.text = "Correct!";
+        results.callAll('kill');
+        
+        gameTimer.add(timeToMath, resetMath);
+        gameTimer.start();
     }
-
 }
 
 function fireBullet () {
