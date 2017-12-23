@@ -23,7 +23,7 @@ var fire=false;
 
 var difficulty = 1;
 var mathOps = ["+","-"]; //1 additions, 2 substractions, 3 multiplications, 3 mix
-const operandLimits = [1,10,10,10,10,10,10,10,10,10];
+const operandLimits = [1,10,20];
 var operationText = ""; 
 var opresult = 0;
 var resultOptions = [];
@@ -58,7 +58,7 @@ function operation(level){
 	var operand2 = game.rnd.integerInRange(1, operandLimits[1]);
     if(operator === "-"){
         var tries = 0;
-        while(operand1 < operand2){
+        while(operand1 <= operand2){
             tries++;
             operand2 = game.rnd.integerInRange(1, operandLimits[1]);
             if(tries == 100){
@@ -304,12 +304,17 @@ function collisionHandler (bullet, resultado) {
         mathAttemps = 0;
         opText.text = "Correct!";
         results.callAll('kill');
-        
         gameTimer.add(timeToMath, resetMath);
         gameTimer.start();
     }else{
         errors++;
         mathAttemps++;
+        if(mathAttemps == 3){
+            results.callAll('kill');
+            opText.text = "Next...";
+            gameTimer.add(timeToMath, resetMath);
+            gameTimer.start();
+        }   
     }
 }
 
