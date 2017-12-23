@@ -101,15 +101,6 @@ function startGame(){
     startBtn.kill();
 }
 
-function reset(){
-    difficulty = 1;
-    scoreValue = 0;
-    opText = "Ready";
-    gameState = 1;
-    startBtn = game.add.button(game.world.centerX, game.world.centerY, 'startButton', null, this, 0, 0, 0, 0);
-    startBtn.events.onInputUp.add(startGame);
-    startBtn.events.onInputDown.add(startGame);
-}
 
 function preload() {
     game.load.image('ground', 'assets/platform.png');
@@ -309,12 +300,16 @@ function collisionHandler (bullet, resultado) {
     }else{
         errors++;
         mathAttemps++;
-        if(mathAttemps == 3){
-            results.callAll('kill');
-            opText.text = "Next...";
-            gameTimer.add(timeToMath, resetMath);
-            gameTimer.start();
-        }   
+        if(errors > 10){
+            reset();
+        }else{
+            if(mathAttemps == 3){
+                results.callAll('kill');
+                opText.text = "Next...";
+                gameTimer.add(timeToMath, resetMath);
+                gameTimer.start();
+            } 
+        }
     }
 }
 
@@ -374,10 +369,27 @@ function releaseMummy() {
     mummy.animations.play('walk', 20, true);    
     mummy.checkWorldBounds = true;
     mummy.events.onOutOfBounds.add(enemyOut, this);
-    
     mummy.body.velocity.x = 50 + Math.random() * 200;
     game.add.tween(mummy).to({ x: game.width + (1600 + mummy.x) }, 20000, Phaser.Easing.Linear.None, true);
     enemyTimer = game.time.now + 100;
     enemyTotal++;
+}
 
+function reset(){
+    opInPlay = false;
+    difficulty = 1;
+    scoreValue = 0;
+    opText.text = "Ready";
+    gameState = 1;
+    startBtn = game.add.button(game.world.centerX, game.world.centerY, 'startButton', null, this, 0, 0, 0, 0);
+    startBtn.events.onInputUp.add(startGame);
+    enemyTotal = 0;
+    enemyTimer = 0;
+    errors = 0;
+    mathAttemps = 0;
+    enemies.callAll('kill');
+    results.callAll('kill');
+    left=false;
+    right=false;
+    fire=false;
 }
