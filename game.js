@@ -3,6 +3,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 
 var gameState = 0;
 var gameTimer;
+var enemyTimer = 0;
 var platforms;
 var enemies;
 var results;
@@ -14,7 +15,7 @@ var opText;
 var scoreText;
 var levelText;
 var startBtn;
-
+var enemyTotal = 0;
 var buttonfire, buttonleft, buttonright;
 var left=false;
 var right=false;
@@ -105,7 +106,7 @@ function preload() {
     game.load.bitmapFont('carrier_command', 'assets/fonts/carrier_command.png', 'assets/fonts/carrier_command.xml');
     game.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png',64,32);
     game.load.spritesheet('buttonfire', 'assets/button-round-a.png',64,64);
-    
+    game.load.spritesheet('mummy', 'assets/metalslug_mummy37x45.png', 37, 45, 18);
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
  }
@@ -113,6 +114,7 @@ function preload() {
 function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     gameTimer = game.time.create(false);
+    
      //  The platforms group contains the ground
     platforms = game.add.group();
     //  We will enable physics for any object that is created in this group
@@ -124,6 +126,9 @@ function create() {
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true;
     
+    enemies = game.add.group();
+    enemies.enableBody = true;
+    enemies.physicsBodyType = Phaser.Physics.ARCADE;
     
     // The player and its settings
     player = game.add.sprite(32, game.world.height - 150, 'dude');
@@ -193,6 +198,7 @@ function create() {
 function update() {
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     game.physics.arcade.overlap(bullets, results, collisionHandler, null, this);
+    game.physics.arcade.overlap(bullets, enemies, enemyCollisionHandler, null, this);
         
     if(gameState === 2){
         scoreText.text = 'Score: ' + scoreValue;
@@ -239,6 +245,12 @@ function update() {
             //fire
             fireBullet();
         }
+        
+        if (enemyTotal < 10 && game.time.now > enemyTimer)
+        {
+            releaseMummy();
+        }
+        
     }
     
 }
@@ -255,9 +267,9 @@ function setMathOps(resultOptions){
     for (var i = 0; i < resultOptions.length; i++)
     {
         var t = game.add.bitmapText((i*spread)+32, 120, 'carrier_command',resultOptions[i],28, results);
-        
         t.name = resultOptions[i];
     }
+    
 }
 
 function resetMath(){
@@ -282,6 +294,14 @@ function collisionHandler (bullet, resultado) {
     }else{
         mathAttemps++;
     }
+}
+
+function enemyCollisionHandler(bullet, enemy){
+    console.log('hit enemy');
+    bullet.kill();
+    enemy.kill();
+    scoreValue+=10;
+    enemyTotal--;
 }
 
 function fireBullet () {
@@ -315,3 +335,27 @@ function shuffle(a) {
     }
 }
 
+function enemyOut(enemy){
+    //  Move the alien to the top of the screen again
+    //enemy.reset(-(Math.random() * 800), game.rnd.integerInRange(100,game.world.height - 100));
+    //  And give it a new random velocity
+    //enemy.body.velocity.x = 50 + Math.random() * 200;
+    enemy.kill();
+    enemyTotal--;
+}
+
+function releaseMummy() {
+    var mummy_y = game.rnd.integerInRange(100,game.world.height - 180);
+    var mummy = enemies.create(-(Math.random() * 800), mummy_y, 'mummy');
+    mummy.scale.setTo(2, 2);
+    mummy.animations.add('walk');
+    mummy.animations.play('walk', 20, true);    
+    mummy.checkWorldBounds = true;
+    mummy.events.onOutOfBounds.add(enemyOut, this);
+    
+    mummy.body.velocity.x = 50 + Math.random() * 200;
+    game.add.tween(mummy).to({ x: game.width + (1600 + mummy.x) }, 20000, Phaser.Easing.Linear.None, true);
+    enemyTimer = game.time.now + 100;
+    enemyTotal++;
+
+}
