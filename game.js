@@ -1,5 +1,5 @@
 //global setup.
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(800, 300, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 var gameState = 0;
 var gameTimer;
@@ -23,7 +23,7 @@ var fire=false;
 
 var difficulty = 1;
 var mathOps = ["+","-"]; //1 additions, 2 substractions, 3 multiplications, 3 mix
-const operandLimits = [1,10,20,30,40,50,60,70,100,1000];
+const operandLimits = [1,10,10,10,10,10,10,10,10,10];
 var operationText = ""; 
 var opresult = 0;
 var resultOptions = [];
@@ -40,13 +40,13 @@ function operation(level){
     }
     const operatorInx = game.rnd.integerInRange(0, mathOps.length-1);
 	const operator = mathOps[operatorInx];
-	var operand1 = game.rnd.integerInRange(1, operandLimits[level]);
-	var operand2 = game.rnd.integerInRange(1, operandLimits[level]);
+	var operand1 = game.rnd.integerInRange(1, operandLimits[1]);
+	var operand2 = game.rnd.integerInRange(1, operandLimits[1]);
     if(operator === "-"){
         var tries = 0;
         while(operand1 < operand2){
             tries++;
-            operand2 = game.rnd.integerInRange(1, operandLimits[level]);
+            operand2 = game.rnd.integerInRange(1, operandLimits[1]);
             if(tries == 100){
                 operand2 = operand1 - 1;
                 break;
@@ -74,7 +74,7 @@ function fakesResults(value, level){
 		fakes.push(parseInt(newStr));
 	}
 	while(fakes.length < 5){
-		var rval = game.rnd.integerInRange(1, operandLimits[level]);
+		var rval = game.rnd.integerInRange(1, operandLimits[1]);
 		if(rval !== value && !fakes.includes(rval)){
 			fakes.push(rval);
 		}
@@ -266,7 +266,7 @@ function setMathOps(resultOptions){
     
     for (var i = 0; i < resultOptions.length; i++)
     {
-        var t = game.add.bitmapText((i*spread)+32, 120, 'carrier_command',resultOptions[i],28, results);
+        var t = game.add.bitmapText((i*spread)+32, game.world.centerY- 80, 'carrier_command',resultOptions[i],28, results);
         t.name = resultOptions[i];
     }
     
@@ -347,7 +347,7 @@ function enemyOut(enemy){
 function releaseMummy() {
     var mummy_y = game.rnd.integerInRange(100,game.world.height - 180);
     var mummy = enemies.create(-(Math.random() * 800), mummy_y, 'mummy');
-    mummy.scale.setTo(2, 2);
+    mummy.scale.setTo(1, 1);
     mummy.animations.add('walk');
     mummy.animations.play('walk', 20, true);    
     mummy.checkWorldBounds = true;
