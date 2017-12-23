@@ -28,7 +28,7 @@ var opresult = 0;
 var resultOptions = [];
 var opInPlay = false;
 const timeToMath = 5000;
-
+var mathAttemps = 0;
 var scoreValue = 0;
 
 function operation(level){
@@ -218,13 +218,13 @@ function update() {
         if (cursors.left.isDown || left)
         {
             //  Move to the left
-            player.body.velocity.x = -150;
+            player.body.velocity.x = -250;
             player.animations.play('left');
         }
         else if (cursors.right.isDown || right)
         {
             //  Move to the right
-            player.body.velocity.x = 150;
+            player.body.velocity.x = 250;
             player.animations.play('right');
         }
         else
@@ -271,13 +271,16 @@ function collisionHandler (bullet, resultado) {
     bullet.kill();
     resultado.kill();
     if(resultado.name == opresult){
-        scoreValue += 100;
+        scoreValue += (100 - (mathAttemps * 10));
         difficulty++;
+        mathAttemps = 0;
         opText.text = "Correct!";
         results.callAll('kill');
         
         gameTimer.add(timeToMath, resetMath);
         gameTimer.start();
+    }else{
+        mathAttemps++;
     }
 }
 
