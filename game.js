@@ -32,6 +32,19 @@ const timeToMath = 5000;
 var mathAttemps = 0;
 var scoreValue = 0;
 
+function gofull() {
+
+    if (game.scale.isFullScreen)
+    {
+        game.scale.stopFullScreen();
+    }
+    else
+    {
+        game.scale.startFullScreen(false);
+    }
+
+}
+
 function operation(level){
     if(level < 10){
         mathOps = ["+"];
@@ -164,10 +177,12 @@ function create() {
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
     scoreText = game.add.bitmapText(10, 10, 'carrier_command','Score: ' + scoreValue,14);
     levelText = game.add.bitmapText(game.world.width - 200, 10, 'carrier_command','Level: ' + difficulty,14);
+    levelText.inputEnabled = true;
+    levelText.events.onInputUp.add(gofull, this);  
     
     startBtn = game.add.button(game.world.centerX, game.world.centerY, 'startButton', null, this, 0, 0, 0, 0);
     startBtn.events.onInputUp.add(startGame);
-    startBtn.events.onInputDown.add(startGame);
+    
     
     
     opText = game.add.bitmapText(game.world.centerX-38, game.world.height - 50, 'carrier_command','Ready',34);
