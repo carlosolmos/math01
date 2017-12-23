@@ -31,6 +31,7 @@ var opInPlay = false;
 const timeToMath = 5000;
 var mathAttemps = 0;
 var scoreValue = 0;
+var errors = 0;
 
 function gofull() {
 
@@ -307,6 +308,7 @@ function collisionHandler (bullet, resultado) {
         gameTimer.add(timeToMath, resetMath);
         gameTimer.start();
     }else{
+        errors++;
         mathAttemps++;
     }
 }
