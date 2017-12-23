@@ -379,7 +379,7 @@ function reset(){
     opInPlay = false;
     difficulty = 1;
     scoreValue = 0;
-    opText.text = "Ready";
+    opText.text = "game over";
     gameState = 1;
     startBtn = game.add.button(game.world.centerX, game.world.centerY, 'startButton', null, this, 0, 0, 0, 0);
     startBtn.events.onInputUp.add(startGame);
