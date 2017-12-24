@@ -20,6 +20,7 @@ var buttonfire, buttonleft, buttonright;
 var left=false;
 var right=false;
 var fire=false;
+var explosions;
 
 var difficulty = 1;
 var mathOps = ["+","-"]; //1 additions, 2 substractions, 3 multiplications, 3 mix
@@ -112,6 +113,7 @@ function preload() {
     game.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png',64,32);
     game.load.spritesheet('buttonfire', 'assets/button-round-a.png',64,64);
     game.load.spritesheet('mummy', 'assets/metalslug_mummy37x45.png', 37, 45, 18);
+    game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
  }
@@ -199,8 +201,19 @@ function create() {
     buttonright.events.onInputOut.add(function(){right=false;});
     buttonright.events.onInputDown.add(function(){right=true;});
     buttonright.events.onInputUp.add(function(){right=false;});
+    
+    explosions = game.add.group();
+    explosions.createMultiple(30, 'kaboom');
+    explosions.forEach(setupInvader, this);
+    
 }
 
+function setupInvader (invader) {
+    invader.anchor.x = 0.5;
+    invader.anchor.y = 0.5;
+    invader.animations.add('kaboom');
+
+}
 
 function update() {
     var hitPlatform = game.physics.arcade.collide(player, platforms);
@@ -253,7 +266,7 @@ function update() {
             fireBullet();
         }
         
-        if (enemyTotal < 10 && game.time.now > enemyTimer)
+        if (enemyTotal < 5 && game.time.now > enemyTimer)
         {
             releaseMummy();
         }
@@ -319,6 +332,9 @@ function enemyCollisionHandler(bullet, enemy){
     enemy.kill();
     scoreValue+=10;
     enemyTotal--;
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(enemy.body.x, enemy.body.y);
+    explosion.play('kaboom', 30, false, true);
 }
 
 function fireBullet () {
@@ -344,7 +360,7 @@ function resetBullet (bullet) {
 
 function shuffle(a) {
     var j, x, i;
-    for (i = a.length - 1; i > 0; i--) {
+    for (i = a.length - 1; i >= 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
         x = a[i];
         a[i] = a[j];
@@ -362,15 +378,15 @@ function enemyOut(enemy){
 }
 
 function releaseMummy() {
-    var mummy_y = game.rnd.integerInRange(100,game.world.height - 180);
-    var mummy = enemies.create(-(Math.random() * 800), mummy_y, 'mummy');
+    var mummy_x = game.rnd.integerInRange(100,game.world.width - 180);
+    var mummy = enemies.create(mummy_x, -(Math.random() * 360), 'mummy');
     mummy.scale.setTo(1, 1);
     mummy.animations.add('walk');
     mummy.animations.play('walk', 20, true);    
     mummy.checkWorldBounds = true;
     mummy.events.onOutOfBounds.add(enemyOut, this);
-    mummy.body.velocity.x = 50 + Math.random() * 200;
-    game.add.tween(mummy).to({ x: game.width + (1600 + mummy.x) }, 20000, Phaser.Easing.Linear.None, true);
+    mummy.body.velocity.y = 4 + Math.random() * 10;
+    game.add.tween(mummy).to({ y: game.width + (42 + mummy.y) }, 60000, Phaser.Easing.Linear.None, true);
     enemyTimer = game.time.now + 100;
     enemyTotal++;
 }
