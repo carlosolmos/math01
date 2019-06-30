@@ -23,8 +23,8 @@ var fire=false;
 var explosions;
 
 var difficulty = 1;
-var mathOps = ["+","-"]; //1 additions, 2 substractions, 3 multiplications, 3 mix
-const operandLimits = [1,10,20];
+var mathOps = ["+","-", "*"]; //1 additions, 2 substractions, 3 multiplications, 3 mix
+const operandLimits = [1,10];
 var operationText = ""; 
 var opresult = 0;
 var resultOptions = [];
@@ -48,11 +48,10 @@ function gofull() {
 }
 
 function operation(level){
-    if(level < 10){
-        mathOps = ["+"];
-    }else{
-        mathOps = ["+","-"];
-    }
+
+
+    mathOps = ["*"];
+
     const operatorInx = game.rnd.integerInRange(0, mathOps.length-1);
 	const operator = mathOps[operatorInx];
 	var operand1 = game.rnd.integerInRange(1, operandLimits[1]);
@@ -106,13 +105,13 @@ function startGame(){
 function preload() {
     game.load.image('ground', 'assets/platform.png');
     game.load.image('resbg', 'assets/resbg.png');
-    game.load.spritesheet('dude', 'assets/mag.png', 32, 48);
+    game.load.spritesheet('dude', 'assets/ship01.png', 32, 37);
     game.load.image('bullet', 'assets/bullet0.png');
     game.load.image('startButton', 'assets/start.png');
     game.load.bitmapFont('carrier_command', 'assets/fonts/carrier_command.png', 'assets/fonts/carrier_command.xml');
     game.load.spritesheet('buttonhorizontal', 'assets/button-horizontal.png',64,32);
     game.load.spritesheet('buttonfire', 'assets/button-round-a.png',64,64);
-    game.load.spritesheet('mummy', 'assets/metalslug_mummy37x45.png', 37, 45, 18);
+    game.load.spritesheet('ship', 'assets/asteroid_01_30x30_sheet.png', 30, 30, 6);
     game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
@@ -268,7 +267,7 @@ function update() {
         
         if (enemyTotal < 5 && game.time.now > enemyTimer)
         {
-            releaseMummy();
+            releaseship();
         }
         
     }
@@ -302,7 +301,7 @@ function collisionHandler (bullet, resultado) {
     console.log("hit:",resultado.name);
     bullet.kill();
     resultado.kill();
-    if(resultado.name == opresult){
+    if(resultado.name === opresult){
         scoreValue += (100 - (mathAttemps * 10));
         difficulty++;
         mathAttemps = 0;
@@ -316,7 +315,7 @@ function collisionHandler (bullet, resultado) {
         if(errors > 10){
             reset();
         }else{
-            if(mathAttemps == 3){
+            if(mathAttemps === 3){
                 results.callAll('kill');
                 opText.text = "Next...";
                 gameTimer.add(timeToMath, resetMath);
@@ -377,16 +376,16 @@ function enemyOut(enemy){
     enemyTotal--;
 }
 
-function releaseMummy() {
-    var mummy_x = game.rnd.integerInRange(100,game.world.width - 180);
-    var mummy = enemies.create(mummy_x, -(Math.random() * 360), 'mummy');
-    mummy.scale.setTo(1, 1);
-    mummy.animations.add('walk');
-    mummy.animations.play('walk', 20, true);    
-    mummy.checkWorldBounds = true;
-    mummy.events.onOutOfBounds.add(enemyOut, this);
-    mummy.body.velocity.y = 4 + Math.random() * 10;
-    game.add.tween(mummy).to({ y: game.width + (42 + mummy.y) }, 60000, Phaser.Easing.Linear.None, true);
+function releaseship() {
+    var ship_x = game.rnd.integerInRange(100,game.world.width - 180);
+    var ship = enemies.create(ship_x, -(Math.random() * 360), 'ship');
+    ship.scale.setTo(1, 1);
+    ship.animations.add('walk');
+    ship.animations.play('walk', 6, true);
+    ship.checkWorldBounds = true;
+    ship.events.onOutOfBounds.add(enemyOut, this);
+    ship.body.velocity.y = 4 + Math.random() * 10;
+    game.add.tween(ship).to({ y: game.width + (42 + ship.y) }, 60000, Phaser.Easing.Linear.None, true);
     enemyTimer = game.time.now + 100;
     enemyTotal++;
 }
